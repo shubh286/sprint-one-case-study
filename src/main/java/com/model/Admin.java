@@ -1,7 +1,5 @@
 package com.model;
 
-import java.util.List;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -23,7 +21,4 @@ public class Admin {
 	private int adminId;
 	private String adminName;
 	private String adminPassword;
-	private List<UserData> userList;
-	private List<Product> productList;
-	private OrderData orderId;
 }

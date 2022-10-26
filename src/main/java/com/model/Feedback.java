@@ -19,10 +19,8 @@ public class Feedback {
 	@Id
 	@GeneratedValue
 	private int feedbackId;
-	private UserData userId;
-	private Product productId;
-	private Admin adminId;
+	//private UserData userId;
+	//private Product productId;
 	private String msgByUser;
 	private int rating;
-	private String commentByAdmin;
 }
