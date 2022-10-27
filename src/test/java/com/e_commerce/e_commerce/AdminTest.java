@@ -25,6 +25,7 @@ import com.annotations.ExcludedFromGeneratedCodeCoverage;
 import com.appexception.AdminExistsException;
 import com.appexception.AdminNotFoundException;
 import com.appexception.AdminNotLoggedException;
+import com.appexception.ListEmptyException;
 import com.controller.AdminController;
 import com.dao.AdminDAO;
 import com.dao.CartDAO;
@@ -89,6 +90,7 @@ class AdminTest {
       URI uri=new URI(url);
       ResponseEntity<String> res=template.getForEntity(uri,String.class);
       assertEquals(HttpStatus.OK,res.getStatusCode());
+      
 	}
 	@Test
 	void testdeleteOrder() throws URISyntaxException, JsonProcessingException {
@@ -300,19 +302,6 @@ class AdminTest {
 		    assertEquals(HttpStatus.OK,res.getStatusCode());
 		}
 		@Test
-		void testGetProductByIdRest()  throws URISyntaxException, JsonProcessingException{
-			RestTemplate template=new RestTemplate();
-			Product p1=new Product("bread",30f,22,"food",0.6f);
-			aser.addProducts(p1);
-			int pid=p1.getProductId();
-			final String url="http://localhost:8900/getproductbyid/"+pid;
-			URI uri=new URI(url);
-			ResponseEntity<String> res=template.getForEntity(uri,String.class);
-		    assertEquals(HttpStatus.OK,res.getStatusCode());
-		}
-		
-		
-		@Test
 		void testDeleteProdRest() throws URISyntaxException, JsonProcessingException {
 			Product p1=new Product("bread",30f,22,"food",0.6f);
 			aser.addProducts(p1);
@@ -363,29 +352,26 @@ class AdminTest {
 			assertEquals(HttpStatus.OK,res.getStatusCode());
 			
 		}
-		
-		@Test
-		void testDeleteUserRest() throws URISyntaxException, JsonProcessingException {
-			UserData u1=new UserData("alex","alex@gmail.com","mumbai","mumbai");
-			userv.addUser(u1);
-			int uid=u1.getUserId();
-			final String url="http://localhost:8900/deleteuser/"+uid;
-			URI uri=new URI(url);
-			HttpHeaders headers = new HttpHeaders();
-			HttpEntity<UserData> request = new HttpEntity<>(u1,headers);
-			RestTemplate template=new RestTemplate();
-			ResponseEntity<String>  res=template.exchange(uri, HttpMethod.DELETE, request, String.class);
-			assertEquals(HttpStatus.OK,res.getStatusCode());
-		}
 		@Test
 		void testGetAllUserByAdminController() throws Exception
 		{
 			UserData u1=new UserData("alex","alex@gmail.com","mumbai","mumbai");
 			userv.addUser(u1);
-			List<UserData> list=Arrays.asList(u1);
+			List<UserData> list=userv.getAllUser();
 			ResponseEntity<Object> res=adminController.getAllUserByAdmin();
-			Object ulist=res.getBody();
-			assertEquals(list.toString(), ulist.toString());
+			assertEquals(res.getBody().toString(),list.toString());
+		}
+		@Test
+		void testGetAllUserByAdminControllerFail()
+		{
+			userdao.deleteAll();
+			Exception exception= assertThrows(ListEmptyException.class, ()->{
+	             adminController.getAllUserByAdmin();
+		});
+			 String expectedMessage = 
+                     "List is empty";
+             String actualMessage = exception.toString();
+             assertEquals(expectedMessage, actualMessage);
 		}
 		@Test
 		void testSetOrderStatusController() throws Exception
@@ -397,5 +383,36 @@ class AdminTest {
 			oservice.addOrder(o);
 			ResponseEntity<String> res=adminController.setStatus(o.getOrderId(),"Ordered");
 			assertEquals("Status Updated", res.getBody());
+		}
+		@Test
+		void testSetOrderStatusControllerFail() throws Exception
+		{
+			Exception exception= assertThrows(Exception.class, ()->{
+				adminController.setStatus(100,"Ordered");
+		});
+			String expectedMessage = 
+                    "Order Not Found";
+            String actualMessage = exception.toString();
+			assertEquals(expectedMessage, actualMessage);
+		}
+		@Test
+		void testdeleteOrderController() throws Exception
+		{
+			OrderData o=new OrderData();
+			orderdao.save(o);
+			ResponseEntity<String> res=adminController.deleteOrder(o);
+			assertEquals("Order Deleted", res.getBody());
+		}
+		@Test
+		void testdeleteOrderControllerFail()
+		{
+			OrderData o=new OrderData();
+			Exception exception= assertThrows(Exception.class, ()->{
+				adminController.deleteOrder(o);
+		});
+			String expectedMessage = 
+                    "Order Not Found";
+            String actualMessage = exception.toString();
+			assertEquals(expectedMessage, actualMessage);
 		}
 }

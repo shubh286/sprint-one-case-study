@@ -3,8 +3,6 @@ package com.controller;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import javax.persistence.EntityNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,46 +43,6 @@ public class AdminController {
 	OrderDataDAO orderdao;
 	@Autowired
 	UserDataService userservice;
-	@DeleteMapping("/deleteorderbyadmin")
-	public ResponseEntity<String> deleteOrder(@RequestBody OrderData p) throws OrderNotFoundException{
-		try {
-			Iterable<OrderData> iterable=orderdao.findAll();
-			for(OrderData x: iterable)
-				if(x.getOrderId()==p.getOrderId()) {
-					oservice.deleteOrder(p);
-					return new ResponseEntity<String>("Order Deleted",HttpStatus.OK);
-				}
-			throw new OrderNotFoundException();
-		}
-		catch(NoSuchElementException e)
-	      {
-	          throw new OrderNotFoundException();
-	      }
-	}
-	
-	@GetMapping("/getalluserfromadmin")
-	public ResponseEntity<Object> getAllUserByAdmin() throws Exception{
-		try {
-			List<UserData> ulist=userservice.getAllUser();
-			return new ResponseEntity<>(ulist,HttpStatus.OK);
-		}
-		catch(Exception e) {
-			throw new ListEmptyException();
-		} 
-	}
-	 @PostMapping("/setorderstatus/{id}/{status}")
-	    public ResponseEntity<String> setStatus(@PathVariable int id,@PathVariable String status) throws OrderNotFoundException
-	    {
-	        try {
-	        	oservice.setOrderStatus(id, status);
-	            return new ResponseEntity<String>("Status Updated",HttpStatus.OK);
-	        }
-	        catch(EntityNotFoundException e)
-	        {
-	            throw new OrderNotFoundException();
-	        }
-	    }
-	 
 	 @PostMapping("/addadmin")
 	    public ResponseEntity<String> addadmin(@RequestBody Admin admin) throws ObjectAddFailException, AdminExistsException {
 	        try {
@@ -98,9 +56,27 @@ public class AdminController {
 	            return new ResponseEntity<String>(e.toString(), HttpStatus.OK);
 	        }
 	    }
-
-
-	    @GetMapping("/getalladmin")
+	 @PatchMapping("/adminlogin")
+	    public ResponseEntity<String> adminlogin(@RequestBody Admin admin) throws AdminNotFoundException {
+	        try {
+	            adminservice.adminLogin(admin);
+	            return new ResponseEntity<String>("Admin logged in successfully", HttpStatus.OK);
+	        } catch (NoSuchElementException e) {
+	            throw new AdminNotFoundException();
+	        }
+	 
+	    }
+	 @PatchMapping("/adminlogout")
+		public ResponseEntity<String> adminlogout(@RequestBody Admin admin)
+				throws  AdminNotLoggedException {
+			try {
+				adminservice.adminLogout(admin);
+				return new ResponseEntity<String>("Admin logged out successfully", HttpStatus.OK);
+			} catch (NoSuchElementException e) {
+				throw new AdminNotLoggedException();
+			}
+		}
+	 @GetMapping("/getalladmin")
 	    public List<Admin> getalladmin() throws EmptyListReturnedException {
 	        try {
 	            List<Admin> alist = adminservice.getAllAdmin();
@@ -112,48 +88,19 @@ public class AdminController {
 	            throw new EmptyListReturnedException();
 	        }
 	    }
-	 
-	    @PatchMapping("/adminlogin")
-	    public ResponseEntity<String> adminlogin(@RequestBody Admin admin) throws AdminNotFoundException {
-	        try {
-	            adminservice.adminLogin(admin);
-	            return new ResponseEntity<String>("Admin logged in successfully", HttpStatus.OK);
-	        } catch (NoSuchElementException e) {
-	            throw new AdminNotFoundException();
-	        }
-	 
-	    }
-	    @GetMapping("/getproductbyid/{pid}")
-		public Product getproductbyid(@PathVariable int pid) throws ProductNotFoundException{
+	 @GetMapping("/getalluserfromadmin")
+		public ResponseEntity<Object> getAllUserByAdmin() throws Exception{
 			try {
-				return adminservice.getProductsById(pid);
-			}catch (NoSuchElementException e) {
-				throw new ProductNotFoundException();
+				List<UserData> ulist=userservice.getAllUser();
+				if(ulist.isEmpty())
+					throw new ListEmptyException();
+				return new ResponseEntity<>(ulist,HttpStatus.OK);
 			}
+			catch(Exception e) {
+				throw new ListEmptyException();
+			} 
 		}
-
-		@PatchMapping("/updateproduct/{pid}")
-		public ResponseEntity<String> updateProduct(@PathVariable int pid, @RequestBody Product p)
-				throws ProductNotFoundException {
-			try {
-				adminservice.updateProducts(pid, p);
-				return new ResponseEntity<String>("Product updated successfully", HttpStatus.OK);
-			} catch (NoSuchElementException e) {
-				throw new ProductNotFoundException();
-			}
-		}
-
-		@DeleteMapping("/deleteproduct/{pid}")
-		public ResponseEntity<String> deleteProduct(@PathVariable int pid) throws ProductNotFoundException {
-			try {
-				adminservice.deleteProducts(pid);
-				return new ResponseEntity<String>("Product deleted successfully", HttpStatus.OK);
-			} catch (NoSuchElementException e) {
-				throw new ProductNotFoundException();
-			}
-		}
-
-		@PatchMapping("/blockuser/{uid}")
+	 @PatchMapping("/blockuser/{uid}")
 		public ResponseEntity<String> blockUser(@PathVariable int uid) throws UserNotFoundException {
 			try {
 				adminservice.blockUsers(uid);
@@ -162,17 +109,7 @@ public class AdminController {
 				throw new UserNotFoundException();
 			}
 		}
-		
-		@DeleteMapping("/deleteuser/{uid}")
-		public ResponseEntity<String> deleteUser(@PathVariable int uid) throws UserNotFoundException {
-			try {
-				adminservice.deleteUsers(uid);
-				return new ResponseEntity<String>("User Deleted", HttpStatus.OK);
-			} catch (NoSuchElementException e) {
-				throw new UserNotFoundException();
-			}
-		}
-		@PostMapping("/addproduct")
+	 @PostMapping("/addproduct")
 		public ResponseEntity<String> addproduct(@RequestBody Product p) throws ObjectAddFailException {
 			try {
 				if (p.getProductName() != null && p.getCategory() != null && p.getQuantity() > 0 ) {
@@ -186,8 +123,7 @@ public class AdminController {
 				// throw new ObjectAddFailException();
 			}
 		}
-
-		@GetMapping("/getallproduct")
+	 @GetMapping("/getallproduct")
 		public List<Product> getallproduct() throws EmptyListReturnedException {
 			try {
 				List<Product> plist = adminservice.getAllProducts();
@@ -201,14 +137,86 @@ public class AdminController {
 				throw new EmptyListReturnedException();
 			}
 		}
-		@PatchMapping("/adminlogout")
-		public ResponseEntity<String> adminlogout(@RequestBody Admin admin)
-				throws  AdminNotLoggedException {
+	 @PatchMapping("/updateproduct/{pid}")
+		public ResponseEntity<String> updateProduct(@PathVariable int pid, @RequestBody Product p)
+				throws ProductNotFoundException {
 			try {
-				adminservice.adminLogout(admin);
-				return new ResponseEntity<String>("Admin logged out successfully", HttpStatus.OK);
+				adminservice.updateProducts(pid, p);
+				return new ResponseEntity<String>("Product updated successfully", HttpStatus.OK);
 			} catch (NoSuchElementException e) {
-				throw new AdminNotLoggedException();
+				throw new ProductNotFoundException();
 			}
 		}
+	 @DeleteMapping("/deleteproduct/{pid}")
+		public ResponseEntity<String> deleteProduct(@PathVariable int pid) throws ProductNotFoundException {
+			try {
+				adminservice.deleteProducts(pid);
+				return new ResponseEntity<String>("Product deleted successfully", HttpStatus.OK);
+			} catch (NoSuchElementException e) {
+				throw new ProductNotFoundException();
+			}
+		}
+	@DeleteMapping("/deleteorderbyadmin")
+	public ResponseEntity<String> deleteOrder(@RequestBody OrderData p) throws Exception{
+		try {
+			Iterable<OrderData> iterable=orderdao.findAll();
+			for(OrderData x: iterable)
+				if(x.getOrderId()==p.getOrderId()) {
+					oservice.deleteOrder(p);
+					return new ResponseEntity<String>("Order Deleted",HttpStatus.OK);
+				}
+			throw new OrderNotFoundException();
+		}
+		catch(Exception e)
+	      {
+	          throw new OrderNotFoundException();
+	      }
+	}
+	 @PostMapping("/setorderstatus/{oid}/{status}")
+	    public ResponseEntity<String> setStatus(@PathVariable int oid,@PathVariable String status) throws OrderNotFoundException
+	    {
+	        try {
+	        	oservice.setOrderStatus(oid, status);
+	            return new ResponseEntity<String>("Status Updated",HttpStatus.OK);
+	        }
+	        catch(Exception e)
+	        {
+	            throw new OrderNotFoundException();
+	        }
+	    }
+	 
+	
+
+
+	    
+	 
+	    
+	/*    @GetMapping("/getproductbyid/{pid}")
+		public Product getproductbyid(@PathVariable int pid) throws ProductNotFoundException{
+			try {
+				return adminservice.getProductsById(pid);
+			}catch (NoSuchElementException e) {
+				throw new ProductNotFoundException();
+			}
+		}*/
+
+		
+
+		
+
+		
+		
+/*		@DeleteMapping("/deleteuser/{uid}")
+		public ResponseEntity<String> deleteUser(@PathVariable int uid) throws UserNotFoundException {
+			try {
+				adminservice.deleteUsers(uid);
+				return new ResponseEntity<String>("User Deleted", HttpStatus.OK);
+			} catch (NoSuchElementException e) {
+				throw new UserNotFoundException();
+			}
+		}*/
+		
+
+		
+		
 }

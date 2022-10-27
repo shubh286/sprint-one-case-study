@@ -1,10 +1,6 @@
 package com.controller;
 
 import java.util.List;
-import java.util.Optional;
-
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,21 +23,7 @@ public class AuthenticationController {
 	@Autowired
 	UserDataDAO userdao;
 	@Autowired
-	UserDataService uservice;
-	@Autowired
-    HttpSession session;
-    
-    @PostMapping("/login")
-    public ResponseEntity<String> loginuser(@RequestBody UserData user)
-    {
-    	Optional<UserData> userexists=userdao.findById(user.getUserId());
-        if(userexists!=null)
-        {
-            session.setAttribute("user", userexists);
-        }
-        return new ResponseEntity<String>("session created",HttpStatus.ACCEPTED);
-    }
-    
+	UserDataService uservice; 
     
     @PostMapping("/registeruser")
     public ResponseEntity<String> addUser(@RequestBody UserData users)throws NullValuesFoundException
@@ -62,24 +44,25 @@ public class AuthenticationController {
     }
     
     
-    @PostMapping("/loginUser/{name}/{password}")
-    public ResponseEntity<String> loginUser(@PathVariable String name,@PathVariable String password)throws NullValuesFoundException{
+    @PostMapping("/loginUser")
+    public ResponseEntity<String> loginUser(@RequestBody UserData u)throws NullValuesFoundException{
     	try {
     		List<UserData> userexists=userdao.findAll();
-        	for(UserData u:userexists) {
-        		if(!u.getAccStatus().equals("Blocked") &&  name!="" && password!="" && u.getUserName().equals(name) && u.getPassword().equals(password)){
-        			session.setAttribute("user", userexists);
-        			u.setLoginStatus(true);
-        			uservice.addUser(u);
-        			return new ResponseEntity<String>("Session Created! User logged in successfully",HttpStatus.OK);
-        	      }
-        		else if(name!="" && password!="" && !u.getUserName().equals(name) || !u.getPassword().equals(password)) {
-        			return new ResponseEntity<String>("Invalid Credentials",HttpStatus.OK);
-        		}
-        		else {
-        			throw new NullValuesFoundException();
+        	for(UserData i:userexists)
+        	{
+        		if(i.getUserName().equals(u.getUserName()))
+        		{
+        			if(i.getAccStatus().equals("Blocked"))
+        				return new ResponseEntity<String>("User is Blocked",HttpStatus.OK);
+        			if(i.getPassword().equals(u.getPassword()))
+        			{
+        				i.setLoginStatus(true);
+        				userdao.save(i); 
+        				return new ResponseEntity<String>("User Logged In",HttpStatus.OK);
+        			}
         		}
         	}
+        	
     	}catch(NullPointerException  e) {
     		throw new NullValuesFoundException();
     	}

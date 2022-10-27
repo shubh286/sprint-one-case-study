@@ -4,11 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,14 +51,7 @@ class UserDataTests {
 	@Autowired
 	CardDAO cdao;
 	
-	@Test
-    void testGetUser() throws URISyntaxException, JsonProcessingException {
-      RestTemplate template=new RestTemplate();
-      final String url="http://localhost:8900/getusers";
-      URI uri=new URI(url);
-      ResponseEntity<String> res=template.getForEntity(uri,String.class);
-      assertEquals(HttpStatus.OK,res.getStatusCode());
-	}
+	
 	@Test
     void testUpdateUserTemplate() throws URISyntaxException, JsonProcessingException {
 		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
@@ -202,7 +192,7 @@ class UserDataTests {
         HttpEntity<String> entity=new HttpEntity<String>(headers);
         
         RestTemplate template=new RestTemplate();
-        assertEquals(HttpStatus.OK,template.exchange("http://localhost:8900/getorderstatus/"+id, HttpMethod.POST,entity,String.class).getStatusCode());
+        assertEquals(HttpStatus.OK,template.exchange("http://localhost:8900/getorderstatus/"+id, HttpMethod.GET,entity,String.class).getStatusCode());
         
     }
 	

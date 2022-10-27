@@ -92,14 +92,7 @@ class CartTest {
 		Cart actual=cdao.findByUserId(u);
 		assertEquals(actual.toString(),c.toString());
 	}
-	@Test
-    void testGetCartTemplate() throws URISyntaxException, JsonProcessingException {
-      RestTemplate template=new RestTemplate();
-      final String url="http://localhost:8900/getcarts";
-      URI uri=new URI(url);
-      ResponseEntity<String> res=template.getForEntity(uri,String.class);
-      assertEquals(HttpStatus.OK,res.getStatusCode());
-	}
+
 	@Test
     void testGetCartForUserTemplate() throws URISyntaxException, JsonProcessingException {
 		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);

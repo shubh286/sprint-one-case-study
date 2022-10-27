@@ -10,6 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.appexception.AdminExistsException;
 import com.appexception.AdminNotFoundException;
 import com.appexception.AdminNotLoggedException;
+import com.appexception.EmptyCartException;
 import com.appexception.EmptyListReturnedException;
 import com.appexception.FeedbackNotFoundException;
 import com.appexception.ListEmptyException;
@@ -104,6 +105,10 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     }
     @ExceptionHandler(FeedbackNotFoundException.class)
     public ResponseEntity<Object> handlePaymentNotFoundException(FeedbackNotFoundException i,WebRequest req){
+        return  new ResponseEntity<>(i.toString(),HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(EmptyCartException.class)
+    public ResponseEntity<Object> handleEmptyCartException(EmptyCartException i,WebRequest req){
         return  new ResponseEntity<>(i.toString(),HttpStatus.NOT_FOUND);
     }
 }

@@ -43,7 +43,7 @@ class FeedbackTest {
 	@Test
     void testGetFeedback() throws URISyntaxException, JsonProcessingException {
       RestTemplate template=new RestTemplate();
-      final String url="http://localhost:8900/getfeed";
+      final String url="http://localhost:8900/savefeed";
       URI uri=new URI(url);
       GettingFeed feedback = new GettingFeed();
       Product p  =new Product();

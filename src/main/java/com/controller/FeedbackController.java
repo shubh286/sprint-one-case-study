@@ -23,8 +23,8 @@ public class FeedbackController {
 	@Autowired
     FeedbackService feedbackservice;
     
-    @PostMapping("/getfeed")
-    public ResponseEntity<String> getFeed(@RequestBody GettingFeed feed) {
+    @PostMapping("/savefeed")
+    public ResponseEntity<String> saveFeed(@RequestBody GettingFeed feed) {
         
         Feedback f = feed.getF();
         f.setUserId(feed.getU().getUserId());
@@ -34,16 +34,18 @@ public class FeedbackController {
         
     }   
     @GetMapping("/getallfeedback")
-    public List<Feedback> getAllFeedback() {
-        
+    public List<Feedback> getAllFeedback() throws Exception {
+        try {
         return feedbackservice.getFeedback();
-            
+        }
+        catch(Exception e)
+        {
+        	throw new FeedbackNotFoundException();
+        }
     }
     
     @PostMapping("/admin/giveFeedback/{feedbackid}")
     public ResponseEntity<String> adminFeedback(@PathVariable int feedbackid, @RequestBody AdminFeedback adminfeed) throws FeedbackNotFoundException {
-
-
 
        ResponseEntity<String> r = feedbackservice.adminfeedback(feedbackid, adminfeed);
         return r;

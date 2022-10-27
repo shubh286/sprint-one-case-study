@@ -6,8 +6,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
-import javax.transaction.Transactional;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,7 +23,6 @@ import com.dao.OrderDataDAO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.model.Cart;
 import com.model.OrderData;
-import com.model.Product;
 import com.model.UserData;
 import com.service.CartService;
 import com.service.OrderDataService;
@@ -47,15 +44,6 @@ class OrderDataTest {
 	OrderDataDAO odao;
 	@Autowired
 	CartDAO cdao;
-	@Test
-    void testGetOrdersTemplate() throws URISyntaxException, JsonProcessingException {
-      RestTemplate template=new RestTemplate();
-      final String url="http://localhost:8900/getorders";
-      URI uri=new URI(url);
-      ResponseEntity<String> res=template.getForEntity(uri,String.class);
-      assertEquals(HttpStatus.OK,res.getStatusCode());
-	}
-	
 	@Test
     void testUpdateOrderTemplate() throws URISyntaxException, JsonProcessingException {
 		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);

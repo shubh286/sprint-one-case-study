@@ -13,9 +13,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.appexception.CartNotFoundException;
 import com.appexception.NoCardFoundException;
 import com.appexception.OrderNotFoundException;
 import com.appexception.PaymentNotFoundException;
+import com.appexception.ProductNotFoundException;
+import com.appexception.UserNotFoundException;
 import com.model.Card;
 import com.model.Product;
 import com.model.UserData;
@@ -32,34 +35,52 @@ public class UserDataController {
 	UserDataService uservice;
 	@Autowired
 	OrderDataService orderService;
-	
-	@GetMapping("/getusers")
-	public List<UserData> getAllUser()
-	{
-		return uservice.getAllUser();
-	}
 	@PatchMapping("/updateuser")
-	public ResponseEntity<String> updateUser(@RequestBody UserData u)
+	public ResponseEntity<String> updateUser(@RequestBody UserData u) throws Exception
 	{
+		try {
 		uservice.updateUser(u);
 		return new ResponseEntity<String>("User Updated",HttpStatus.OK);
 	}
+		catch(Exception e)
+		{
+			throw new UserNotFoundException();
+		}
+	}
 	@GetMapping("/getproductbyuser")
-	public List<Product> getAllProducts()
+	public List<Product> getAllProducts() throws Exception
 	{
+		try {
 		return uservice.getProductsByUser();
 	}
+		catch(Exception e)
+		{
+			throw new ProductNotFoundException();
+		}
+	}
 	@PostMapping("/addproducttocartbyuser/{pid}/{cid}")
-	public ResponseEntity<String> addProductToCartByUser(@PathVariable("pid") int pid,@PathVariable("cid") int cid)
+	public ResponseEntity<String> addProductToCartByUser(@PathVariable("pid") int pid,@PathVariable("cid") int cid) throws Exception
 	{
+		try {
 		uservice.addProductByUserToCart(pid, cid);
 		return new ResponseEntity<String>("Product Added to Cart",HttpStatus.OK);
 	}
+		catch(Exception e)
+		{
+			throw new ProductNotFoundException();
+		}
+	}
 	@PostMapping("/deleteproductfromcartbyuser/{pid}/{cid}")
-	public ResponseEntity<String> deleteProductFromCartByUser(@PathVariable("pid") int pid,@PathVariable("cid") int cid)
+	public ResponseEntity<String> deleteProductFromCartByUser(@PathVariable("pid") int pid,@PathVariable("cid") int cid) throws Exception
 	{
+		try {
 		uservice.removeProductByUserFromCart(pid, cid);
 		return new ResponseEntity<String>("Product Removed From Cart",HttpStatus.OK);
+	}
+		catch(Exception e)
+		{
+			throw new CartNotFoundException();
+		}
 	}
 	@PostMapping("/updatepayment/{pid}/{oid}/{paymentmode}")
 	public ResponseEntity<String> updatePaymentMethod(@PathVariable("pid") int pid,@PathVariable("oid") int oid,@PathVariable("paymentmode") String paymentMode) throws Exception
@@ -75,10 +96,16 @@ public class UserDataController {
 		}
 	
 	@PostMapping("/addcard/{pid}/{uid}")
-	public ResponseEntity<String> addCard(@PathVariable("pid") int pid,@PathVariable("uid") int uid,@RequestBody Card c)
+	public ResponseEntity<String> addCard(@PathVariable("pid") int pid,@PathVariable("uid") int uid,@RequestBody Card c) throws Exception
 	{
+		try {
 		uservice.addCardDetails(pid,uid, c);
 		return new ResponseEntity<String>("Card details Added",HttpStatus.OK);
+	}
+		catch(Exception e)
+		{
+			throw new PaymentNotFoundException();
+		}
 	}
 	@GetMapping("/viewcards/{pid}")
 	public List<Card> getCards(@PathVariable("pid") int pid) throws Exception
@@ -102,7 +129,7 @@ public class UserDataController {
 			throw new NoCardFoundException();
 		}
 	}
-	@PostMapping("/getorderstatus/{id}")
+	@GetMapping("/getorderstatus/{id}")
     public ResponseEntity<String> getStatus(@PathVariable int id) throws OrderNotFoundException
     {
         try

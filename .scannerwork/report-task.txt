@@ -1,6 +1,6 @@
-projectKey=SampleECommerce
+projectKey=Sample2
 serverUrl=http://localhost:9000
 serverVersion=9.6.1.59531
-dashboardUrl=http://localhost:9000/dashboard?id=SampleECommerce
-ceTaskId=AYQXPx1XEXmLtQrsayl4
-ceTaskUrl=http://localhost:9000/api/ce/task?id=AYQXPx1XEXmLtQrsayl4
+dashboardUrl=http://localhost:9000/dashboard?id=Sample2
+ceTaskId=AYQZCoHmJcaBMuYn7BTP
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AYQZCoHmJcaBMuYn7BTP

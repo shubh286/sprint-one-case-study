@@ -1,7 +1,5 @@
 package com.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +20,6 @@ public class OrderDataService {
 	@Autowired
 	CartDAO cdao;
 	
-	public List<OrderData> getAllOrders()
-	{
-		return dao.findAll();
-	}
 	public void addOrder(OrderData od)
 	{
 		Payment p=new Payment();

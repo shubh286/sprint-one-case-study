@@ -24,17 +24,6 @@ class AuthenticationTest {
 	@Autowired
 	UserDataDAO udao;
 	@Test
-    void testAddSession() throws URISyntaxException, JsonProcessingException {
-      RestTemplate template=new RestTemplate();
-      final String url="http://localhost:8900/login";
-      UserData users=new UserData("Peter","1234#","peter@gmail.com","Mumbai","Mumbai",true);
-      URI uri=new URI(url);
-      HttpHeaders headers = new HttpHeaders();      
-      HttpEntity<UserData> request = new HttpEntity<>(users, headers);
-      ResponseEntity<String> res=template.postForEntity(uri,request,String.class);
-      assertEquals(HttpStatus.ACCEPTED,res.getStatusCode());
-  }
-	@Test
     void testAddRegisteredUser() throws URISyntaxException, JsonProcessingException {
       RestTemplate template=new RestTemplate();
       final String url="http://localhost:8900/registeruser";
@@ -50,10 +39,10 @@ class AuthenticationTest {
       RestTemplate template=new RestTemplate();
       UserData users=new UserData("Mary","1234#","jane@gmail.com","Mumbai","Mumbai",true);
       udao.save(users);
-      final String url="http://localhost:8900/loginUser/Mary/1234#";
+      final String url="http://localhost:8900/loginUser";
       URI uri=new URI(url);
       HttpHeaders headers = new HttpHeaders();      
-      HttpEntity<UserData> request = new HttpEntity<>( headers);
+      HttpEntity<UserData> request = new HttpEntity<>(users, headers);
       ResponseEntity<String> res=template.postForEntity(uri,request,String.class);
       assertEquals(HttpStatus.OK,res.getStatusCode());
   }
