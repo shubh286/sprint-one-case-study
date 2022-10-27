@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,12 +17,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.appexception.EmptyCartException;
+import com.controller.CartController;
 import com.dao.CartDAO;
 import com.dao.ProductDAO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.model.Cart;
 import com.model.Product;
 import com.model.UserData;
+import com.service.CartService;
 import com.service.UserDataService;
 @SpringBootTest
 class CartTest {
@@ -32,6 +36,10 @@ class CartTest {
 	ProductDAO pdao;
 	@Autowired
 	CartDAO cdao;
+	@Autowired
+	CartService cserv;
+	@Autowired
+	CartController cController;
 	@Test
 	void testAddCart(){
 		Cart c=new Cart();
@@ -66,17 +74,11 @@ class CartTest {
 	@Test
 	void testGetCart()
 	{
-		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
-		uservice.addUser(u);
-		Cart c=cdao.findByUserId(u);
-		Product p=new Product("coffee",40.5f,10,"Edibles",10f);
-		pdao.save(p);
-		p.setProductId(p.getProductId());
-		List<Product> list=Arrays.asList(p);
-		c.setProductList(list);
+		Cart c=new Cart();
 		cdao.save(c);
-		Cart cart=cdao.findById(c.getCartId()).get();
-		assertEquals(c.toString(), cart.toString());
+		List<Cart> act=cdao.findAll();
+		List<Cart> exp=cserv.getCart();
+		assertEquals(act.toString(),exp.toString());
 	}
 	@Test
 	void testFindCartOfUser()
@@ -105,5 +107,55 @@ class CartTest {
 		ResponseEntity<String> res=template.postForEntity(uri,request,String.class);
 		assertEquals(HttpStatus.OK,res.getStatusCode());
   }
-	
+	@Test
+	void testAddProductToCart()
+	{
+		Product p=new Product();
+		pdao.save(p);
+		List<Product> plist=new ArrayList<>();
+		Cart c=new Cart();
+		c.setProductList(plist);
+		cdao.save(c);
+		plist.add(p);
+		c.setProductList(plist);
+		cserv.addProductToCart(p.getProductId(), c.getCartId());
+		Cart exp=cdao.findById(c.getCartId()).get();
+		assertEquals(c.toString(), exp.toString());
+	}
+	@Test
+    void testgetCartForUserController() throws Exception
+    {
+        Cart c=new Cart();
+        UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
+        c.setUserId(u);
+        Product p=new Product("coffee",40.5f,10,"Edibles",10f);
+        pdao.save(p);
+        List<Product> list=Arrays.asList(p);
+        c.setProductList(list);
+        cdao.save(c);
+        Cart actual=cController.getCartForUser(u);
+        assertEquals(actual.toString(),c.toString());
+            
+    }
+	@Test
+    void testgetCartForUserFail()
+    {
+        Exception exp=assertThrows(EmptyCartException.class,()->{
+            Cart c=new Cart();
+            UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
+            Product p=new Product("coffee",40.5f,10,"Edibles",10f);
+            pdao.save(p);
+            List<Product> list=Arrays.asList(p);
+            c.setProductList(list);
+            cdao.save(c);
+            Cart actual=cController.getCartForUser(u);
+            
+        });
+        
+        String expMsg="Cart Not Found";
+        
+        String actual=exp.toString();
+        
+        assertEquals(expMsg,actual);
+    }
 }

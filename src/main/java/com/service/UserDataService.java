@@ -91,17 +91,16 @@ public class UserDataService {
 		Payment p=paydao.getById(pid);
 		return p.getCardDetails();
 	}
-	public Card selectCard(int pid,int cid)
+	public boolean selectCard(int pid,int cid)
 	{
 		Payment p=paydao.getById(pid);
 		List<Card> card=p.getCardDetails();
-		Card obj = null;
 		for(Card c:card)
 		{
 			if(cid==c.getCardId())
-				obj=c;
+				return true;
 		}
-		return obj;
+		return false;
 	}
 	public boolean checkLoginStatus(String name) throws Exception
 	{

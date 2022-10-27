@@ -15,9 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.controller.FeedbackController;
 import com.dao.AdminDAO;
 import com.dao.AdminFeedbackDAO;
 import com.dao.FeedbackDAO;
+import com.dao.ProductDAO;
+import com.dao.UserDataDAO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.model.Admin;
 import com.model.AdminFeedback;
@@ -35,11 +38,16 @@ class FeedbackTest {
     
     @Autowired
     FeedbackDAO feeddao;
-    
+    @Autowired
+    UserDataDAO udao;
+    @Autowired
+    ProductDAO pdao;
     @Autowired
     AdminFeedbackDAO adminfeeddao;
     @Autowired
     AdminDAO adao;
+    @Autowired
+    FeedbackController fcontroller;
 	@Test
     void testGetFeedback() throws URISyntaxException, JsonProcessingException {
       RestTemplate template=new RestTemplate();
@@ -95,16 +103,20 @@ class FeedbackTest {
     void serviceSaveFeedback() {
         
         Feedback myfeed = new Feedback();
-        Feedback testfeed = feeddao.save(myfeed);
-        assertEquals(testfeed,myfeed);
+        testfeedbackservice.saveFeedback(myfeed);
+        Feedback f=feeddao.findById(myfeed.getFeedbackId()).get();
+        assertEquals(f.toString(),myfeed.toString());
     }
     
     @Test
-    void serviceSaveadminFeedback() {
+    void serviceSaveadminFeedback() throws Exception {
         
         AdminFeedback myadminfeed = new AdminFeedback();
-        AdminFeedback testadminfeed = adminfeeddao.save(myadminfeed);
-        assertEquals(testadminfeed,myadminfeed);
+        Feedback myfeed=new Feedback();
+        feeddao.save(myfeed);
+        testfeedbackservice.adminfeedback(myfeed.getFeedbackId(), myadminfeed);
+        AdminFeedback exp=adminfeeddao.findById(myadminfeed.getAdminFeedbackId()).get();
+        assertEquals(exp.toString(),myadminfeed.toString());
     }
     
     @Test
@@ -112,5 +124,52 @@ class FeedbackTest {
         
         List<Feedback> listFeed = testfeedbackservice.getFeedback();
         assertEquals(feeddao.findAll().toString(),listFeed.toString());
+    }
+    
+    @Test
+    void testSaveFeedController()
+    {
+    	Product p=new Product("Coffee",10f,10,"edibles",10f);
+    	pdao.save(p);
+    	UserData u=new UserData("John", "mail", "delhi", "Goa");
+    	udao.save(u);
+    	Feedback f=new Feedback(u.getUserId(),p.getProductId(),"good",10);
+    	feeddao.save(f);
+    	GettingFeed gf=new GettingFeed(p,u,f);
+    	ResponseEntity<String> res=fcontroller.saveFeed(gf);
+    	assertEquals("feedback added", res.getBody());
+    }
+    @Test
+    void testGetAllFeedbackController() throws Exception
+    {
+    	Product p=new Product("Coffee",10f,10,"edibles",10f);
+    	pdao.save(p);
+    	UserData u=new UserData("John", "mail", "delhi", "Goa");
+    	udao.save(u);
+    	Feedback f=new Feedback(u.getUserId(),p.getProductId(),"good",10);
+    	feeddao.save(f);
+    	GettingFeed gf=new GettingFeed(p,u,f);
+    	fcontroller.saveFeed(gf);
+    	List<Feedback> act=feeddao.findAll();
+    	List<Feedback> exp=fcontroller.getAllFeedback();
+    	assertEquals(act.toString(),exp.toString());
+    }
+    @Test
+    void testAdminFeedbackController() throws Exception
+    {
+    	Product p=new Product("Coffee",10f,10,"edibles",10f);
+    	pdao.save(p);
+    	UserData u=new UserData("John", "mail", "delhi", "Goa");
+    	udao.save(u);
+    	Feedback f=new Feedback(u.getUserId(),p.getProductId(),"good",10);
+    	feeddao.save(f);
+    	GettingFeed gf=new GettingFeed(p,u,f);
+    	fcontroller.saveFeed(gf);
+    	Admin a=new Admin("john", "7890");
+    	adao.save(a);
+    	int fid=f.getFeedbackId();
+    	AdminFeedback af=new AdminFeedback(a, "Ok Thanks");
+    	ResponseEntity<String> res=fcontroller.adminFeedback(fid, af);
+    	assertEquals("Admin Feedback Added", res.getBody());
     }
 }

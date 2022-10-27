@@ -119,15 +119,19 @@ public class UserDataController {
 		}
 	}
 	@GetMapping("/selectcard/{pid}/{cid}")
-	public Card selectCard(@PathVariable("pid") int pid,@PathVariable("cid") int cid) throws Exception
+	public ResponseEntity<String> selectCard(@PathVariable("pid") int pid,@PathVariable("cid") int cid) throws Exception
 	{
 		try {
-		return uservice.selectCard(pid, cid);
+		 if(uservice.selectCard(pid, cid))
+		 {
+			 return new ResponseEntity<String>("Payment Done",HttpStatus.OK);
+		 }
 	}
 		catch(Exception e)
 		{
 			throw new NoCardFoundException();
 		}
+		return new ResponseEntity<String>("Card Not Found",HttpStatus.OK);
 	}
 	@GetMapping("/getorderstatus/{id}")
     public ResponseEntity<String> getStatus(@PathVariable int id) throws OrderNotFoundException
@@ -142,4 +146,9 @@ public class UserDataController {
             throw new OrderNotFoundException();
         }
     }
+	@PostMapping("/makepayment")
+	public String mpay()
+	{
+		return "Payment Done";
+	}
 }

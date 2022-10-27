@@ -46,6 +46,17 @@ public class UserData {
 		this.billingAddress = billingAddress;
 		this.shippingAddress = shippingAddress;
 	}
+	public UserData(String userName, String password, String emailId, String billingAddress, String shippingAddress,
+			boolean loginStatus, String accStatus) {
+		super();
+		this.userName = userName;
+		this.password = password;
+		this.emailId = emailId;
+		this.billingAddress = billingAddress;
+		this.shippingAddress = shippingAddress;
+		this.loginStatus = loginStatus;
+		this.accStatus = accStatus;
+	}
 
 
 	

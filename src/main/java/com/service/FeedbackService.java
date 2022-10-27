@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.appexception.FeedbackNotFoundException;
@@ -37,21 +35,15 @@ public class FeedbackService {
         return feed.findAll();
     }
     
-    public ResponseEntity<String> adminfeedback(int feedbackid, AdminFeedback adminfeed) throws FeedbackNotFoundException {
+    public void adminfeedback(int feedbackid, AdminFeedback adminfeed) throws FeedbackNotFoundException {
         
         try {
-        //Feedback f = feed.getById(feedbackid);
         Optional<Feedback> f1  = feed.findById(feedbackid);
-        Feedback f = f1.get();
-
-
-
-   
-        if(feedbackid == f.getFeedbackId()) {
-            
-            adminfeeddao.save(adminfeed);
-            return new ResponseEntity<String>("feedbacks by admin given", HttpStatus.OK);
-            
+        Feedback f=null;
+        if(f1.isPresent())
+        f = f1.get();   
+        if(feedbackid == f.getFeedbackId()) {          
+            adminfeeddao.save(adminfeed);    
         }
         
         else {

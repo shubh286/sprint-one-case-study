@@ -36,16 +36,10 @@ public class OrderController {
         
     }
 	@PatchMapping("/updateorder")
-	public ResponseEntity<String> updateOrders(@RequestBody OrderData od) throws Exception
+	public ResponseEntity<String> updateOrders(@RequestBody OrderData od)
 	{
-		try {
 		service.updateOrder(od);
 		return new ResponseEntity<String>("Order Updated",HttpStatus.OK);
-	}
-		catch(Exception e)
-		{
-			throw new OrderNotFoundException();
-		}
 	}
 	@PostMapping("/placeorder/{cartId}")
     public ResponseEntity<String> placeOrder(@PathVariable int cartId) throws OrderNotFoundException

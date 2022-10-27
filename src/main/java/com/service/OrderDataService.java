@@ -1,5 +1,7 @@
 package com.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +11,7 @@ import com.dao.PaymentDAO;
 import com.model.Cart;
 import com.model.OrderData;
 import com.model.Payment;
+import com.model.Product;
 
 @Service
 public class OrderDataService {
@@ -30,7 +33,7 @@ public class OrderDataService {
 	}
 	public void updateOrder(OrderData od)
 	{
-		dao.save(od);
+		dao.saveAndFlush(od);
 	}
 	public void deleteOrder(OrderData o)
 	{
@@ -38,13 +41,22 @@ public class OrderDataService {
 	}
 	public void addCartToOrder(int orderId,int cartId)
     {
-        OrderData o=dao.findById(orderId).get();
-		Payment p=new Payment();
-		p.setOrderId(o);
-		pdao.save(p);
         Cart c=cdao.findById(cartId).get();
+        OrderData o=dao.findById(orderId).get();
+        
         o.setCartId(c);
+        List<Product> pList=c.getProductList();
+        int amount=0;
+        for(Product p:pList)
+        {
+            float discount=p.getDiscount();
+            float totalAmount=p.getPrice()*p.getQuantity();
+            float afterDiscount=totalAmount-totalAmount*discount/100;
+            amount+=afterDiscount;
+        }
+        o.setTotalAmount(amount);
         o.setOrderStatus("Order Placed");
+        
         dao.save(o);
             
     }

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.appexception.PaymentNotFoundException;
 import com.model.Payment;
 import com.service.PaymentService;
 
@@ -18,13 +17,6 @@ public class PaymentController {
 	@GetMapping("/getpayment")
 	public List<Payment> getPayment() throws Exception
 	{
-		try {
 		return service.getPayment();
 	}
-		catch(Exception e)
-		{
-			throw new PaymentNotFoundException();
-		}
-	}
-	
 }

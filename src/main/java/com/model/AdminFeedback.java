@@ -10,9 +10,11 @@ import javax.persistence.OneToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @Entity
 public class AdminFeedback {
     
@@ -24,4 +26,11 @@ public class AdminFeedback {
     private Admin adminId;
     
     private String adminreply;
+
+	public AdminFeedback(Admin adminId, String adminreply) {
+		super();
+		this.adminId = adminId;
+		this.adminreply = adminreply;
+	}
+    
 }

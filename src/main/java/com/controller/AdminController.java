@@ -44,7 +44,7 @@ public class AdminController {
 	@Autowired
 	UserDataService userservice;
 	 @PostMapping("/addadmin")
-	    public ResponseEntity<String> addadmin(@RequestBody Admin admin) throws ObjectAddFailException, AdminExistsException {
+	    public ResponseEntity<String> addadmin(@RequestBody Admin admin) throws Exception{
 	        try {
 	            if (admin.getAdminName() != null && admin.getAdminPassword() != null ) {
 	                adminservice.addAdmin(admin);
@@ -52,8 +52,8 @@ public class AdminController {
 	            } else {
 	                throw new ObjectAddFailException();
 	            }
-	        } catch (ObjectAddFailException e) {
-	            return new ResponseEntity<String>(e.toString(), HttpStatus.OK);
+	        } catch (Exception e) {
+	            throw new ObjectAddFailException();
 	        }
 	    }
 	 @PatchMapping("/adminlogin")
@@ -119,8 +119,7 @@ public class AdminController {
 					throw new ObjectAddFailException();
 				}
 			} catch (ObjectAddFailException e) {
-				return new ResponseEntity<String>(e.toString(), HttpStatus.OK);
-				// throw new ObjectAddFailException();
+				throw new ObjectAddFailException();
 			}
 		}
 	 @GetMapping("/getallproduct")

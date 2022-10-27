@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +26,11 @@ import com.annotations.ExcludedFromGeneratedCodeCoverage;
 import com.appexception.AdminExistsException;
 import com.appexception.AdminNotFoundException;
 import com.appexception.AdminNotLoggedException;
+import com.appexception.EmptyListReturnedException;
 import com.appexception.ListEmptyException;
+import com.appexception.ObjectAddFailException;
+import com.appexception.ProductNotFoundException;
+import com.appexception.UserNotFoundException;
 import com.controller.AdminController;
 import com.dao.AdminDAO;
 import com.dao.CartDAO;
@@ -180,13 +185,6 @@ class AdminTest {
 	        assertEquals(actual, expected);
 	    }
 	  @Test
-	    void testGetProductByIdServ() {
-	        Product p1=new Product("bread",30f,22,"food",0.6f);
-	        pdao.save(p1);
-	        Product expected=pdao.findById(p1.getProductId()).get();
-	        assertEquals(p1.toString(),expected.toString());
-	    }
-	  @Test
 	    void testDeleteProductsServ() {
 	        Product p1=new Product("bread",30f,22,"food",0.6f);
 	        pdao.save(p1);
@@ -335,7 +333,6 @@ class AdminTest {
 			assertEquals(HttpStatus.OK,res.getStatusCode());
 			
 			//Assertions.assertEquals("updated",template.exchange(uri,HttpMethod.PATCH,request,String.class).getBody());
-
 		}
 		
 		@Test
@@ -415,4 +412,203 @@ class AdminTest {
             String actualMessage = exception.toString();
 			assertEquals(expectedMessage, actualMessage);
 		}
+		@Test
+		void testAddAdminController() throws Exception
+		{
+			Admin a=new Admin("John", "1234");
+			ResponseEntity<String> res=adminController.addadmin(a);
+			assertEquals("Admin added", res.getBody());
+		}
+		@Test
+		void testAddAminControllerFail()
+		{
+			Admin a=new Admin();
+			Exception exception= assertThrows(Exception.class, ()->{
+				adminController.addadmin(a);
+		});
+			String expectedMessage = 
+                    "Object could not be Added.";
+            String actualMessage = exception.toString();
+			assertEquals(expectedMessage, actualMessage);
+		}
+		@Test
+		void testAdminLoginController() throws Exception
+		{
+			Admin a=new Admin("john", "1234");
+			admindao.save(a);
+			ResponseEntity<String> res=adminController.adminlogin(a);
+			assertEquals("Admin logged in successfully", res.getBody());
+		}
+		@Test
+		void testAdminLoginControllerFail()
+		{
+			Admin a=new Admin();
+			Exception exception= assertThrows(Exception.class, ()->{
+				adminController.adminlogin(a);
+		});
+			String expectedMessage = 
+                    "Admin Not Found";
+            String actualMessage = exception.toString();
+			assertEquals(expectedMessage, actualMessage);
+		}
+		@Test
+		void testAdminLogoutController() throws Exception
+		{
+			Admin a=new Admin("John","134");
+			admindao.save(a);
+			adminController.adminlogin(a);
+			ResponseEntity<String> res=adminController.adminlogout(a);
+			assertEquals("Admin logged out successfully", res.getBody());
+		}
+		@Test
+		void testAdminLogoutControllerFail()
+		{
+			Admin a=new Admin("John","134");
+			admindao.save(a);
+			Exception exception= assertThrows(Exception.class, ()->{
+				adminController.adminlogout(a);
+		});
+			String expectedMessage = 
+                    "Admin has not logged in.";
+            String actualMessage = exception.toString();
+			assertEquals(expectedMessage, actualMessage);
+		}
+		@Test
+		void testGetAllAdminController() throws Exception
+		{
+			Admin a=new Admin("John","134");
+			admindao.save(a);
+			List<Admin> exp=admindao.findAll();
+			List<Admin> act=adminController.getalladmin();
+			assertEquals(exp.toString(), act.toString());
+		}
+		@Test
+		void testGetAllAdminControllerFail()
+		{
+			Exception exception= assertThrows(Exception.class, ()->{
+				adminController.getalladmin();
+		});
+			String expectedMessage = 
+                    "List is Empty.";
+            String actualMessage = exception.toString();
+			assertEquals(expectedMessage, actualMessage);
+		}
+		@Test
+		void testBlockUserController() throws Exception
+		{
+			UserData u=new UserData("john", "mail", "billing Add", "goa");
+			userdao.save(u);
+			int uid=u.getUserId();
+			ResponseEntity<String> res=adminController.blockUser(uid);
+			assertEquals("User blocked", res.getBody());
+		}
+		@Test
+		void testBlockUserControllerFail()
+		{
+			Exception exception= assertThrows(Exception.class, ()->{
+				adminController.blockUser(0);
+		});
+			String expectedMessage = 
+                    "User Not Found";
+            String actualMessage = exception.toString();
+			assertEquals(expectedMessage, actualMessage);
+		}
+		@Test
+		void testAddProductController() throws Exception
+		{
+			Product p=new Product("coffe", 40f, 10, "ediles", 10f);
+			ResponseEntity<String> res=adminController.addproduct(p);
+			assertEquals(res.getBody(), "Product added successfully");
+		}
+		@Test
+		void testAddProductControllerFail()
+		{
+			Product p=new Product();
+			Exception exception= assertThrows(Exception.class, ()->{
+				adminController.addproduct(p);
+		});
+			String expectedMessage = 
+                    "Object could not be Added.";
+            String actualMessage = exception.toString();
+			assertEquals(expectedMessage, actualMessage);
+		}
+		@Test
+		void testGetAllProductController() throws Exception
+		{
+			Product p=new Product("coffe", 40f, 10, "ediles", 10f);
+			pdao.save(p);
+			List<Product> act=pdao.findAll();
+			List<Product> exp=adminController.getallproduct();
+			assertEquals(act.toString(), exp.toString());
+		}
+		@Test
+		void testGetAllProductControllerFail()
+		{
+			Exception exception= assertThrows(Exception.class, ()->{
+				adminController.getallproduct();
+		});
+			String expectedMessage = 
+                    "List is Empty.";
+            String actualMessage = exception.toString();
+			assertEquals(expectedMessage, actualMessage);
+		}
+		@Test
+		void testUpdateProductController() throws Exception
+		{
+			Product p=new Product("coffe", 40f, 10, "ediles", 10f);
+			pdao.save(p);
+			int pid=p.getProductId();
+			ResponseEntity<String> res=adminController.updateProduct(pid, p);
+			assertEquals("Product updated successfully", res.getBody());
+		}
+		@Test
+		void testDeleteProductController() throws Exception
+		{
+			Product p=new Product("coffe", 40f, 10, "ediles", 10f);
+			pdao.save(p);
+			int pid=p.getProductId();
+			ResponseEntity<String> res=adminController.deleteProduct(pid);
+			assertEquals("Product deleted successfully", res.getBody());
+		}
+		@Test
+        void testGetProductByIdServ() {
+            Product p1=new Product("bread",30f,22,"food",0.6f);
+            pdao.save(p1);
+            Product expected=pdao.findById(p1.getProductId()).get();
+            Product actual=aser.getProductsById(p1.getProductId());
+            assertEquals(expected.toString(),actual.toString());
+        }
+		@Test
+	    public void testAdminLoginServFailed() throws AdminNotFoundException{
+	        Admin a1=new Admin("admin","admin123");
+	        Exception exception= assertThrows(AdminNotFoundException.class, ()->{
+	            aser.adminLogin(a1);
+
+
+
+	       });
+	            String expectedMessage = "Admin Not Found";
+	            String actualMessage = exception.toString();
+	            System.out.println(expectedMessage);
+	            System.out.println(actualMessage);
+	            assertTrue(actualMessage.equals(expectedMessage));
+	            
+	    }
+		@Test
+	    public void testAddAdminServFailed() throws AdminExistsException{
+	        Admin a1=new Admin("admin","admin123");
+	        admindao.save(a1);
+	        Exception exception= assertThrows(AdminExistsException.class, ()->{
+	            aser.addAdmin(a1);
+
+
+
+	       });
+	            String expectedMessage = "Admin Already Exists.";
+	            String actualMessage = exception.toString();
+
+
+
+	           assertTrue(actualMessage.equals(expectedMessage));
+	    }
 }

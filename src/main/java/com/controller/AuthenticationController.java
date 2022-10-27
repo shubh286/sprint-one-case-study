@@ -29,6 +29,8 @@ public class AuthenticationController {
     public ResponseEntity<String> addUser(@RequestBody UserData users)throws NullValuesFoundException
     {
     	try {
+    		if(users.getUserName()=="" || users.getPassword()=="")
+    			throw new NullValuesFoundException();
     		if(users.isLoginStatus()==false && users.getUserName()!="" && users.getEmailId()!="") {
                 uservice.addUser(users);
                 return new ResponseEntity<String>("user added successfully",HttpStatus.OK);
@@ -37,7 +39,7 @@ public class AuthenticationController {
     			return new ResponseEntity<String>("You have Already Registered",HttpStatus.OK);
     		}
     	}
-    	catch(NullPointerException  e) {
+    	catch(Exception  e) {
     		throw new NullValuesFoundException();
     	}
     	return null;
@@ -48,11 +50,15 @@ public class AuthenticationController {
     public ResponseEntity<String> loginUser(@RequestBody UserData u)throws NullValuesFoundException{
     	try {
     		List<UserData> userexists=userdao.findAll();
-        	for(UserData i:userexists)
+    		int flag=0;
+    		if(u.getUserName()=="" || u.getPassword()=="")
+    			throw new NullValuesFoundException();
+    		for(UserData i:userexists)
         	{
         		if(i.getUserName().equals(u.getUserName()))
         		{
-        			if(i.getAccStatus().equals("Blocked"))
+        			flag=1;
+        			if(u.getAccStatus().equals("Blocked"))
         				return new ResponseEntity<String>("User is Blocked",HttpStatus.OK);
         			if(i.getPassword().equals(u.getPassword()))
         			{
@@ -62,8 +68,10 @@ public class AuthenticationController {
         			}
         		}
         	}
+    		if(flag==0)
+				return new ResponseEntity<String>("Invalid Credentials",HttpStatus.OK);
         	
-    	}catch(NullPointerException  e) {
+    	}catch(Exception  e) {
     		throw new NullValuesFoundException();
     	}
 		return null;
@@ -84,4 +92,22 @@ public class AuthenticationController {
     		throw new UserNotLoginException();
     	}
 	}
+    @PostMapping("/logout")
+    public ResponseEntity<String> logoutUser(@RequestBody String name) throws NullValuesFoundException{
+        try {
+            List<UserData> userexists=userdao.findAll();
+            for(UserData u:userexists) {
+                if(u.getUserName().equals(name)) {
+                    u.setLoginStatus(false);
+                    return new ResponseEntity<String>("User has successfully logged out",HttpStatus.OK);
+                }
+                else if(name.equals("")) {
+                    throw new NullValuesFoundException();
+                }
+            }
+            return new ResponseEntity<String>("No such user with this username has signed in",HttpStatus.OK);
+        }catch(NullPointerException e){
+            throw new NullValuesFoundException();
+        }
+    }
 }

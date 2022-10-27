@@ -56,6 +56,7 @@ public class AdminService {
     }
 
     public void adminLogin(Admin admin) throws AdminNotFoundException {
+    	try {
         Admin a = adao.findById(admin.getAdminId()).get();
         if (admin.getAdminName().equals(a.getAdminName()) && admin.getAdminPassword().equals(a.getAdminPassword())
 && admin.getAdminId() == a.getAdminId()) {
@@ -63,10 +64,15 @@ public class AdminService {
             adao.save(admin);
         } else
             throw new AdminNotFoundException();
+    	}
+    	catch(Exception e)
+    	{
+    		throw new AdminNotFoundException();
+    	}
     }
     public void adminLogout(Admin admin) throws AdminNotLoggedException {
         Admin a = adao.findById(admin.getAdminId()).get();
-        if (a.isLoginStatus() == true) {
+        if (a.isLoginStatus()) {
             a.setLoginStatus(false);
             adao.save(a);
         } else
@@ -89,16 +95,5 @@ public class AdminService {
         UserData u = udao.findById(uid).get();
         u.setAccStatus("Blocked");
         udao.saveAndFlush(u);
-    }
- 
-    public void deleteUsers(int uid) {
-        UserData u = udao.findById(uid).get();
-        Cart c=cservice.findCartOfUser(u);
-        cdao.delete(c);
-        udao.delete(u);
-    }
-
-    public void deleteAllAdmin() {
-        adao.deleteAll();
     }
 }

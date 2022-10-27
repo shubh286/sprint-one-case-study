@@ -15,7 +15,7 @@ public class AdminNotFoundException extends Exception {
 	{
 		
 	}
-	public String toSring()
+	public String toString()
 	{
 		return "Admin Not Found";
 	}

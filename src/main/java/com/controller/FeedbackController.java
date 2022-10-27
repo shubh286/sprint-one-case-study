@@ -47,8 +47,8 @@ public class FeedbackController {
     @PostMapping("/admin/giveFeedback/{feedbackid}")
     public ResponseEntity<String> adminFeedback(@PathVariable int feedbackid, @RequestBody AdminFeedback adminfeed) throws FeedbackNotFoundException {
 
-       ResponseEntity<String> r = feedbackservice.adminfeedback(feedbackid, adminfeed);
-        return r;
+        feedbackservice.adminfeedback(feedbackid, adminfeed);
+        return new ResponseEntity<String>("Admin Feedback Added",HttpStatus.OK);
    }
     
     
