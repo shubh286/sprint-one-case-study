@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.appexception.AdminExistsException;
 import com.appexception.AdminNotFoundException;
+import com.appexception.AdminNotLoggedException;
 import com.dao.AdminDAO;
 import com.dao.CartDAO;
 import com.dao.ProductDAO;
@@ -15,8 +16,6 @@ import com.model.Admin;
 import com.model.Cart;
 import com.model.Product;
 import com.model.UserData;
-
-import comappexception.AdminNotLoggedException;
 
 @Service
 public class AdminService {

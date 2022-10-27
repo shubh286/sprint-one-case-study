@@ -9,6 +9,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.appexception.AdminExistsException;
 import com.appexception.AdminNotFoundException;
+import com.appexception.AdminNotLoggedException;
 import com.appexception.EmptyListReturnedException;
 import com.appexception.FeedbackNotFoundException;
 import com.appexception.ListEmptyException;
@@ -20,8 +21,6 @@ import com.appexception.PaymentNotFoundException;
 import com.appexception.ProductNotFoundException;
 import com.appexception.UserNotFoundException;
 import com.appexception.UserNotLoginException;
-
-import comappexception.AdminNotLoggedException;
 
 @ControllerAdvice
 public class ControllerAdvisor extends ResponseEntityExceptionHandler {

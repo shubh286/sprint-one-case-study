@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,9 +21,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import com.annotations.Generated;
+import com.annotations.ExcludedFromGeneratedCodeCoverage;
 import com.appexception.AdminExistsException;
 import com.appexception.AdminNotFoundException;
+import com.appexception.AdminNotLoggedException;
+import com.controller.AdminController;
 import com.dao.AdminDAO;
 import com.dao.CartDAO;
 import com.dao.OrderDataDAO;
@@ -35,14 +38,15 @@ import com.model.OrderData;
 import com.model.Product;
 import com.model.UserData;
 import com.service.AdminService;
+import com.service.CartService;
 import com.service.OrderDataService;
 import com.service.UserDataService;
-
-import comappexception.AdminNotLoggedException;
 @SpringBootTest
-@Generated
+@ExcludedFromGeneratedCodeCoverage
 class AdminTest {
 
+	@Autowired
+	AdminController adminController;
 	@Autowired
 	AdminDAO admindao;
 	@Autowired
@@ -59,6 +63,8 @@ class AdminTest {
 	AdminService aser;
 	@Autowired
 	UserDataService userv;
+	@Autowired
+	CartService cserv;
 	Cart cart1;
 	OrderData i;
 	@BeforeEach
@@ -370,5 +376,26 @@ class AdminTest {
 			RestTemplate template=new RestTemplate();
 			ResponseEntity<String>  res=template.exchange(uri, HttpMethod.DELETE, request, String.class);
 			assertEquals(HttpStatus.OK,res.getStatusCode());
+		}
+		@Test
+		void testGetAllUserByAdminController() throws Exception
+		{
+			UserData u1=new UserData("alex","alex@gmail.com","mumbai","mumbai");
+			userv.addUser(u1);
+			List<UserData> list=Arrays.asList(u1);
+			ResponseEntity<Object> res=adminController.getAllUserByAdmin();
+			Object ulist=res.getBody();
+			assertEquals(list.toString(), ulist.toString());
+		}
+		@Test
+		void testSetOrderStatusController() throws Exception
+		{
+			UserData u1=new UserData("alex","alex@gmail.com","mumbai","mumbai");
+			userv.addUser(u1);
+			Cart c=cserv.findCartOfUser(u1);
+			OrderData o=new OrderData(new java.util.Date(),40f ,"Rec",c );
+			oservice.addOrder(o);
+			ResponseEntity<String> res=adminController.setStatus(o.getOrderId(),"Ordered");
+			assertEquals("Status Updated", res.getBody());
 		}
 }

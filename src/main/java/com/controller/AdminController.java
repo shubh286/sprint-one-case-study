@@ -1,6 +1,5 @@
 package com.controller;
 
-import java.util.EmptyStackException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.appexception.AdminExistsException;
 import com.appexception.AdminNotFoundException;
+import com.appexception.AdminNotLoggedException;
 import com.appexception.EmptyListReturnedException;
 import com.appexception.ListEmptyException;
 import com.appexception.ObjectAddFailException;
@@ -33,8 +33,6 @@ import com.model.UserData;
 import com.service.AdminService;
 import com.service.OrderDataService;
 import com.service.UserDataService;
-
-import comappexception.AdminNotLoggedException;
 
 @RestController
 public class AdminController {
@@ -65,15 +63,12 @@ public class AdminController {
 	}
 	
 	@GetMapping("/getalluserfromadmin")
-	public ResponseEntity<Object> getAllUserByAdmin() throws ListEmptyException{
+	public ResponseEntity<Object> getAllUserByAdmin() throws Exception{
 		try {
 			List<UserData> ulist=userservice.getAllUser();
-			if(ulist.size()!=0) {
-				return new ResponseEntity<>(ulist,HttpStatus.OK);
-			}
-			throw new ListEmptyException();
+			return new ResponseEntity<>(ulist,HttpStatus.OK);
 		}
-		catch(EmptyStackException e) {
+		catch(Exception e) {
 			throw new ListEmptyException();
 		} 
 	}

@@ -1,8 +1,8 @@
 package com.appexception;
 
-import com.annotations.Generated;
+import com.annotations.ExcludedFromGeneratedCodeCoverage;
 
-@Generated
+@ExcludedFromGeneratedCodeCoverage
 public class UserNotFoundException extends Exception {
 
 	/**

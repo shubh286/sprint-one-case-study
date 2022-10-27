@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.dao.CardDAO;
 import com.dao.PaymentDAO;
+import com.dao.UserDataDAO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.model.Card;
 import com.model.Cart;
@@ -36,6 +39,8 @@ import com.service.UserDataService;
 @SpringBootTest
 class UserDataTests {
 
+	@Autowired
+	UserDataDAO udao;
 	@Autowired
 	UserDataService uservice;
 	@Autowired
@@ -215,9 +220,13 @@ class UserDataTests {
         
     }
 	
-	
-	
-	
+	@Test
+	void testGetAllUserService() throws Exception
+	{
+		List<UserData> exp=uservice.getAllUser();
+		List<UserData> act=udao.findAll();
+		assertEquals(act.toString(),exp.toString());
+	}
 	
 	
 	

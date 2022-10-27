@@ -1,5 +1,8 @@
-package comappexception;
+package com.appexception;
 
+import com.annotations.ExcludedFromGeneratedCodeCoverage;
+
+@ExcludedFromGeneratedCodeCoverage
 public class AdminNotLoggedException extends Exception {
 
 	/**
