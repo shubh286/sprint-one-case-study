@@ -1,5 +1,8 @@
 package com.appexception;
 
+import com.annotations.Generated;
+
+@Generated
 public class PaymentNotFoundException extends Exception{
     
     /**

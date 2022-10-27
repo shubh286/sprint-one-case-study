@@ -21,4 +21,10 @@ public class Admin {
 	private int adminId;
 	private String adminName;
 	private String adminPassword;
+	private boolean loginStatus=false;
+	public Admin(String adminName, String adminPassword) {
+		super();
+		this.adminName = adminName;
+		this.adminPassword = adminPassword;
+	}
 }

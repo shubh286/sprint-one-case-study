@@ -8,4 +8,6 @@ import com.model.Admin;
 @Repository
 public interface AdminDAO extends JpaRepository<Admin, Integer>{
 
+	public Admin findByAdminName(String adminName);
+
 }

@@ -7,5 +7,7 @@ import com.model.UserData;
 @Repository
 public interface UserDataDAO extends JpaRepository<UserData, Integer>{
 
-	
+	public UserData findByUserName(String userName);
+
+	public int countByUserId(int userId);
 }

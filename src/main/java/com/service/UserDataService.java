@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.appexception.UserNotLoginException;
 import com.dao.CardDAO;
 import com.dao.OrderDataDAO;
 import com.dao.PaymentDAO;
@@ -102,15 +103,22 @@ public class UserDataService {
 		}
 		return obj;
 	}
-	public Payment getPaymentForUser(UserData u)
+	public boolean checkLoginStatus(String name) throws Exception
 	{
-		Payment p=null;
+		try {
+		UserData u=dao.findByUserName(name);
 		if(u.isLoginStatus()==true)
+			return true;
+		else
+			return false;
+	}
+		catch(NullPointerException e)
 		{
-			Cart c=cartService.findCartOfUser(u);
-			OrderData o=odao.findByCartId(c);
-			p=paydao.findByOrderId(o);
+			throw new UserNotLoginException();
 		}
-		return p;
+		catch(Exception e)
+		{
+			throw new UserNotLoginException();
+		}
 	}
 } 

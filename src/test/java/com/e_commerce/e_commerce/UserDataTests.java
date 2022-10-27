@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -56,20 +58,8 @@ class UserDataTests {
       assertEquals(HttpStatus.OK,res.getStatusCode());
 	}
 	@Test
-    void testAddUser() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
-		uservice.addUser(u);
-		RestTemplate template=new RestTemplate();
-		final String url="http://localhost:8900/adduser";
-		URI uri=new URI(url);
-		HttpHeaders headers = new HttpHeaders();      
-		HttpEntity<UserData> request = new HttpEntity<>(u,headers);
-		ResponseEntity<String> res=template.postForEntity(uri,request,String.class);
-		assertEquals(HttpStatus.OK,res.getStatusCode());
-  }
-	@Test
     void testUpdateUserTemplate() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		uservice.addUser(u);
 		RestTemplate template=new RestTemplate();
         template.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
@@ -81,19 +71,7 @@ class UserDataTests {
                 HttpMethod.PATCH,request,String.class);
 		assertEquals(HttpStatus.OK,res.getStatusCode());
   }
-	@Test
-	void testdeleteUserTemplate() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
-		uservice.addUser(u);
-		RestTemplate template=new RestTemplate();
-		final String url="http://localhost:8900/deleteuser";
-		URI uri=new URI(url);
-		HttpHeaders headers = new HttpHeaders();
-		HttpEntity<UserData> request = new HttpEntity<>(u, headers);
-		ResponseEntity<String>  res;
-	    res=template.exchange(uri, HttpMethod.DELETE, request, String.class);
-		assertEquals(HttpStatus.OK,res.getStatusCode());
-	}
+	
 	@Test
     void testGetProductByUserTemplate() throws URISyntaxException, JsonProcessingException {
       RestTemplate template=new RestTemplate();
@@ -104,7 +82,7 @@ class UserDataTests {
 	}
 	@Test
     void testAddProductToCartByUser() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		uservice.addUser(u);
 		Product p=new Product("coffee",40.5f,10,"Edibles",10f);
 		pservice.addProduct(p);
@@ -121,7 +99,7 @@ class UserDataTests {
   }
 	@Test
     void testDeleteProductToCartByUser() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		uservice.addUser(u);
 		Product p=new Product("coffee",40.5f,10,"Edibles",10f);
 		pservice.addProduct(p);
@@ -138,7 +116,7 @@ class UserDataTests {
   }
 	@Test
     void testUpdatePaymentByUserTemplate() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		uservice.addUser(u);
 		OrderData o=new OrderData(new java.util.Date(),400f,"Received",cservice.findCartOfUser(u));
 		oservice.addOrder(o);
@@ -155,7 +133,7 @@ class UserDataTests {
   }
 	@Test
     void testAddCardByUserTemplate() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		uservice.addUser(u);
 		OrderData o=new OrderData(new java.util.Date(),400f,"Received",cservice.findCartOfUser(u));
 		oservice.addOrder(o);
@@ -172,7 +150,7 @@ class UserDataTests {
   }
 	@Test
     void testViewCardTemplate() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		uservice.addUser(u);
 		OrderData o=new OrderData(new java.util.Date(),400f,"Received",cservice.findCartOfUser(u));
 		oservice.addOrder(o);
@@ -186,7 +164,7 @@ class UserDataTests {
 	}
 	@Test
     void testSelectCardTemplate() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		uservice.addUser(u);
 		OrderData o=new OrderData(new java.util.Date(),400f,"Received",cservice.findCartOfUser(u));
 		oservice.addOrder(o);
@@ -208,15 +186,34 @@ class UserDataTests {
 		assertEquals(HttpStatus.OK,res.getStatusCode());
 	}
 	@Test
-    void testGetPaymentForUser() throws URISyntaxException, JsonProcessingException {
-      RestTemplate template=new RestTemplate();
-      final String url="http://localhost:8900/getpaymentforuser";
-      URI uri=new URI(url);
-      ResponseEntity<String> res=template.getForEntity(uri,String.class);
-      assertEquals(HttpStatus.OK,res.getStatusCode());
-	}
+    void testGetOrderStatus()
+    {
+        OrderData o=new OrderData();
+        oservice.addOrder(o);
+        int id=o.getOrderId();
+        
+        HttpHeaders headers=new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        HttpEntity<String> entity=new HttpEntity<String>(headers);
+        
+        RestTemplate template=new RestTemplate();
+        assertEquals(HttpStatus.OK,template.exchange("http://localhost:8900/getorderstatus/"+id, HttpMethod.POST,entity,String.class).getStatusCode());
+        
+    }
 	
-	
+	@Test
+    void testGetOrderStatusService()
+    {
+        OrderData o=new OrderData();
+        o.setOrderStatus("Delivered");
+        oservice.addOrder(o);
+        
+        OrderData o1=oservice.getOrderById(o.getOrderId());
+        String status=oservice.getOrderStatus(o.getOrderId());
+        assertEquals(o1.getOrderStatus(),status);
+        
+        
+    }
 	
 	
 	

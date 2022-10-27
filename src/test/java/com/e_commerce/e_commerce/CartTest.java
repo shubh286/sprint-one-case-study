@@ -35,7 +35,7 @@ class CartTest {
 	@Test
 	void testAddCart(){
 		Cart c=new Cart();
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		c.setUserId(u);
 		Product p=new Product("coffee",40.5f,10,"Edibles",10f);
 		pdao.save(p);
@@ -51,7 +51,7 @@ class CartTest {
 	void testDeleteCart()
 	{
 		Cart c=new Cart();
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		c.setUserId(u);
 		Product p=new Product("coffee",40.5f,10,"Edibles",10f);
 		pdao.save(p);
@@ -66,7 +66,7 @@ class CartTest {
 	@Test
 	void testGetCart()
 	{
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		uservice.addUser(u);
 		Cart c=cdao.findByUserId(u);
 		Product p=new Product("coffee",40.5f,10,"Edibles",10f);
@@ -82,7 +82,7 @@ class CartTest {
 	void testFindCartOfUser()
 	{
 		Cart c=new Cart();
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		c.setUserId(u);
 		Product p=new Product("coffee",40.5f,10,"Edibles",10f);
 		pdao.save(p);
@@ -102,7 +102,7 @@ class CartTest {
 	}
 	@Test
     void testGetCartForUserTemplate() throws URISyntaxException, JsonProcessingException {
-		UserData u=new UserData("john","john@gmail.com","Delhi","Goa",true);
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
 		uservice.addUser(u);
 		RestTemplate template=new RestTemplate();
 		final String url="http://localhost:8900/getcartforuser";

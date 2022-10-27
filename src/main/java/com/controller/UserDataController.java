@@ -2,6 +2,8 @@ package com.controller;
 
 import java.util.List;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.appexception.NoCardFoundException;
+import com.appexception.OrderNotFoundException;
 import com.appexception.PaymentNotFoundException;
 import com.model.Card;
-import com.model.Payment;
 import com.model.Product;
 import com.model.UserData;
+import com.service.OrderDataService;
 import com.service.UserDataService;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -28,29 +31,19 @@ public class UserDataController {
 
 	@Autowired
 	UserDataService uservice;
+	@Autowired
+	OrderDataService orderService;
 	
 	@GetMapping("/getusers")
 	public List<UserData> getAllUser()
 	{
 		return uservice.getAllUser();
 	}
-	@PostMapping("/adduser")
-	public ResponseEntity<String> addUser(@RequestBody UserData u)
-	{
-		uservice.addUser(u);
-		return new ResponseEntity<String>("User Added",HttpStatus.OK);
-	}
 	@PatchMapping("/updateuser")
 	public ResponseEntity<String> updateUser(@RequestBody UserData u)
 	{
 		uservice.updateUser(u);
 		return new ResponseEntity<String>("User Updated",HttpStatus.OK);
-	}
-	@DeleteMapping("/deleteuser")
-	public ResponseEntity<String> deleteuser(@RequestBody UserData u)
-	{
-		uservice.deleteUser(u);
-		return new ResponseEntity<String>("User Deleted",HttpStatus.OK);
 	}
 	@GetMapping("/getproductbyuser")
 	public List<Product> getAllProducts()
@@ -110,10 +103,17 @@ public class UserDataController {
 			throw new NoCardFoundException();
 		}
 	}
-	
-	@GetMapping("/getpaymentforuser")
-	public Payment getPaymentForUser(@RequestBody UserData u)
-	{
-		return uservice.getPaymentForUser(u);
-	}
+	@PostMapping("/getorderstatus/{id}")
+    public ResponseEntity<String> getStatus(@PathVariable int id) throws OrderNotFoundException
+    {
+        try
+        {
+        	orderService.getOrderStatus(id);
+            return new ResponseEntity<String>(orderService.getOrderStatus(id),HttpStatus.OK);
+        }
+        catch(EntityNotFoundException e)
+        {
+            throw new OrderNotFoundException();
+        }
+    }
 }

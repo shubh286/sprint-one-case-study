@@ -28,15 +28,25 @@ public class UserData {
 	private String billingAddress;
 	private String shippingAddress;
 	private boolean loginStatus;
-	
-	public UserData(String userName, String emailId, String billingAddress, String shippingAddress,
+	private String accStatus="active";
+	public UserData(String userName, String password, String emailId, String billingAddress, String shippingAddress,
 			boolean loginStatus) {
 		super();
 		this.userName = userName;
+		this.password = password;
 		this.emailId = emailId;
 		this.billingAddress = billingAddress;
 		this.shippingAddress = shippingAddress;
 		this.loginStatus = loginStatus;
 	}
+	public UserData(String userName, String emailId, String billingAddress, String shippingAddress) {
+		super();
+		this.userName = userName;
+		this.emailId = emailId;
+		this.billingAddress = billingAddress;
+		this.shippingAddress = shippingAddress;
+	}
+
+
 	
 }

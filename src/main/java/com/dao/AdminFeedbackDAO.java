@@ -3,12 +3,8 @@ package com.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.model.Product;
-
+import com.model.AdminFeedback;
 @Repository
-public interface ProductDAO extends JpaRepository<Product,Integer>{
+public interface AdminFeedbackDAO extends JpaRepository<AdminFeedback, Integer>{
 
-	public int countByProductId(int productId);
-
-	
 }
