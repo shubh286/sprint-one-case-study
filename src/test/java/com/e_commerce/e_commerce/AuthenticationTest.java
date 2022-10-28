@@ -169,4 +169,17 @@ class AuthenticationTest {
 		 String actualMessage= exception.toString();
          assertTrue(actualMessage.equals(expectedMessage));
 	}
+	@Test
+	void logoutUserSuccess() throws Exception{
+		UserData users = new UserData("Jake123", "1234#", "jane@gmail.com", "Mumbai", "Mumbai", false);
+		uservice.addUser(users);
+		ResponseEntity<String> res=authcontroller.logoutUser(users.getUserName());
+		assertEquals("User has successfully logged out", res.getBody());
+	}
+	
+    @Test
+	void logoutUserFail() throws Exception{
+		ResponseEntity<String> res=authcontroller.logoutUser("morty");
+		assertEquals("No such user with this username has signed in", res.getBody());
+	}
 }

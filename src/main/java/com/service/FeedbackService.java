@@ -50,7 +50,11 @@ public class FeedbackService {
             //return new ResponseEntity("feedback by user not found", HttpStatus.OK);
             throw new FeedbackNotFoundException();
         }
-        }catch(FeedbackNotFoundException e) {
+        }catch(NullPointerException e)
+        {
+        	throw new FeedbackNotFoundException();
+        }
+        catch(FeedbackNotFoundException e) {
             throw new FeedbackNotFoundException();
         }
         catch(Exception e) {

@@ -146,9 +146,4 @@ public class UserDataController {
             throw new OrderNotFoundException();
         }
     }
-	@PostMapping("/makepayment")
-	public String mpay()
-	{
-		return "Payment Done";
-	}
 }

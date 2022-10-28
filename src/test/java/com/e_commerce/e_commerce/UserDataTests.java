@@ -1,9 +1,14 @@
 package com.e_commerce.e_commerce;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -18,8 +23,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import com.appexception.PaymentNotFoundException;
+import com.controller.UserDataController;
 import com.dao.CardDAO;
+import com.dao.CartDAO;
+import com.dao.OrderDataDAO;
 import com.dao.PaymentDAO;
+import com.dao.ProductDAO;
 import com.dao.UserDataDAO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.model.Card;
@@ -36,20 +46,33 @@ import com.service.UserDataService;
 @SpringBootTest
 class UserDataTests {
 
+
 	@Autowired
-	UserDataDAO udao;
-	@Autowired
-	UserDataService uservice;
-	@Autowired
-	CartService cservice;
-	@Autowired
-	ProductService pservice;
-	@Autowired
-	PaymentDAO pdao;
-	@Autowired
-	OrderDataService oservice;
-	@Autowired
-	CardDAO cdao;
+    UserDataDAO udao;
+    @Autowired
+    UserDataService uservice;
+    @Autowired
+    CartService cservice;
+    @Autowired
+    ProductService pservice;
+    @Autowired
+    PaymentDAO pdao;
+    @Autowired
+    OrderDataService oservice;
+    @Autowired
+    CardDAO cdao;
+    
+    @Autowired
+    ProductDAO prdao;
+    
+    @Autowired
+    OrderDataDAO odao;
+    
+    @Autowired
+    CartDAO cartdao;
+    
+    @Autowired
+    UserDataController udc;
 	
 	
 	@Test
@@ -218,9 +241,232 @@ class UserDataTests {
 		assertEquals(act.toString(),exp.toString());
 	}
 	
+	@Test
+	void testAddUser() {
+		UserData utest = new UserData();
+		uservice.addUser(utest);
+		assertEquals(utest.toString(), udao.findByUserName(utest.getUserName()).toString());
+	}
+	
+	@Test
+	void testUpdateUser() {
+		UserData utest1 = new UserData();
+		utest1.setUserName("new");
+		uservice.updateUser(utest1);
+		assertEquals(utest1.toString(), udao.findByUserName(utest1.getUserName()).toString());
+	}
+	
+//	@Test
+//	void testDeleteUser() {
+//		UserData utest = new UserData();
+//		int uid = utest.getUserId();
+//		uservice.deleteUser(utest);
+//		int a  = 0;
+//		assertEquals(a,udao.findAllBy);
+//	}
+//	
+	
+	@Test
+	void testGetProductByUser() {
+		List<Product> listprod = uservice.getProductsByUser();
+		assertEquals(listprod.toString(),prdao.findAll().toString());
+	}
 	
 	
+/*	@Test 
+	void addProductToCartTest() {
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
+		uservice.addUser(u);
+		Product ptest=new Product("coffee",40.5f,10,"Edibles",10f);
+		pservice.addProduct(ptest);
+		
+		List<Product> testPList = new ArrayList<Product>();
+		testPList.add(ptest);
+		Cart ctest= new Cart(u,testPList);
+		cartdao.save(ctest);
+		uservice.addProductByUserToCart(ctest.getCartId(), ptest.getProductId());
+		assertEquals(testPList.toString(), ctest.getProductList().toString());
+		
+	}*/
 	
+	
+/*	@Test 
+	void removeProductFromCartTest() {
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
+		uservice.addUser(u);
+		Product ptest=new Product("coffee",40.5f,10,"Edibles",10f);
+		pservice.addProduct(ptest);
+		
+		List<Product> testPList = new ArrayList<Product>();
+		testPList.add(ptest);
+		Cart ctest= new Cart(u,testPList);
+		cartdao.save(ctest);
+		uservice.removeProductByUserFromCart(ctest.getCartId(), ptest.getProductId());
+		assertEquals(testPList.toString(), ctest.getProductList().toString());
+		
+	}*/
+	
+	@Test
+    void updatePaymentTest() {
+        pdao.deleteAllInBatch();
+        UserData u=new UserData("John","john@gmail.com","Delhi","Goa");
+        uservice.addUser(u);
+        Cart c=cservice.findCartOfUser(u);
+        OrderData o=new OrderData(new java.util.Date(), 40f, "Rec",c);
+        oservice.addOrder(o);
+        Payment payment=pdao.findByOrderId(o);
+        int pid=payment.getPaymentId();
+        int oid=o.getOrderId();
+        String exp=pdao.findById(pid).get().getPaymentMode();
+        uservice.updatePayment(pid,oid, "Cash-on-Delivery");
+        String actual=pdao.findById(pid).get().getPaymentMode();
+        //System.out.println(pid+" "+oid+" "+exp+" "+actual);
+        assertNotNull(actual);
+        assertNotEquals(exp, actual);
+        
+    }
+	
+/*	@Test
+	void addCardDetailsTest() {
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
+		uservice.addUser(u);
+		OrderData o=new OrderData(new java.util.Date(),400f,"Received",cservice.findCartOfUser(u));
+		oservice.addOrder(o);
+		Card x=new Card(u,"John","543323445","21/21","456");
+		cdao.save(x);
+		Payment p=pdao.findByOrderId(o);
+		int pid=p.getPaymentId();
+		uservice.addCardDetails(u.getUserId(), pid, x);
+		List<Card> cards= new ArrayList<Card>();
+		cards.add(x);
+		assertEquals(cards.toString(),p.getCardDetails().toString());
+	}*/
+	
+	@Test
+	void viewCardsTest() {
+		List<Card> testcard = new ArrayList<Card>();
+		Payment paytest = new Payment();
+		pdao.save(paytest);
+		assertEquals(testcard, uservice.viewCards(paytest.getPaymentId()));
+		
+		
+	}
+	
+	@Test
+	void loginStatusTest() throws Exception {
+		
+		UserData u=new UserData("johnnn","1234","john@gmail.com","Delhi","Goa",true);
+		uservice.addUser(u);
+		
+		uservice.checkLoginStatus("johnnn");
+		assertEquals(u.isLoginStatus(),uservice.checkLoginStatus("johnnn"));
+		
+		
+
+	}
+	
+	
+	@Test
+	void updateUserControllerTest() throws Exception {
+		UserData utest1 = new UserData();
+		utest1.setUserName("neww");
+		udc.updateUser(utest1);
+		assertEquals(utest1.toString(), udao.findByUserName(utest1.getUserName()).toString());
+		
+	}
+	
+	@Test
+	void getAllProductControllerTest() throws Exception {
+		
+		List<Product> listprod = udc.getAllProducts();
+		assertEquals(listprod.toString(),prdao.findAll().toString());
+		
+	}
+	
+	@Test
+	void updatePaymentControllerTest() throws Exception {
+        pdao.deleteAllInBatch();
+        UserData u=new UserData("John","john@gmail.com","Delhi","Goa");
+        uservice.addUser(u);
+        Cart c=cservice.findCartOfUser(u);
+        OrderData o=new OrderData(new java.util.Date(), 40f, "Rec",c);
+        oservice.addOrder(o);
+        Payment payment=pdao.findByOrderId(o);
+        int pid=payment.getPaymentId();
+        int oid=o.getOrderId();
+        String exp=pdao.findById(pid).get().getPaymentMode();
+        udc.updatePaymentMethod(pid,oid, "Cash-on-Delivery");
+        String actual=pdao.findById(pid).get().getPaymentMode();
+        //System.out.println(pid+" "+oid+" "+exp+" "+actual);
+        assertNotNull(actual);
+        assertNotEquals(exp, actual);
+	}
+	
+/*	@Test
+	void addCardControllerTest() {
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
+		uservice.addUser(u);
+		OrderData o=new OrderData(new java.util.Date(),400f,"Received",cservice.findCartOfUser(u));
+		oservice.addOrder(o);
+		Card x=new Card(u,"John","543323445","21/21","456");
+		cdao.save(x);
+		Payment p=pdao.findByOrderId(o);
+		int pid=p.getPaymentId();
+		
+		uservice.addCardDetails(u.getUserId(), pid, x);
+		List<Card> cards= new ArrayList<Card>();
+		cards.add(x);
+		
+		assertEquals(cards.toString(),p.getCardDetails().toString());
+		
+	}*/
+	
+	@Test
+	void viewCardControllerTest() throws Exception {
+		List<Card> testcard = new ArrayList<Card>();
+		Payment paytest = new Payment();
+		pdao.save(paytest);
+		assertEquals(testcard, udc.getCards(paytest.getPaymentId()));
+	}
+	
+	@Test
+    void testUpdatePaymentByPaymentTemplate() throws URISyntaxException, JsonProcessingException {
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
+		uservice.addUser(u);
+		OrderData o=new OrderData(new java.util.Date(),400f,"Received",cservice.findCartOfUser(u));
+		oservice.addOrder(o);
+		Payment p=pdao.findByOrderId(o);
+		int pid=p.getPaymentId();
+		int oid=o.getOrderId();
+		RestTemplate template=new RestTemplate();
+		final String url="http://localhost:8900/updatepayment/"+pid+"/"+oid+"/Card";
+		URI uri=new URI(url);
+		HttpHeaders headers = new HttpHeaders();      
+		HttpEntity<Payment> request = new HttpEntity<>(p,headers);
+		ResponseEntity<String> res=template.postForEntity(uri,request,String.class);
+		assertEquals(HttpStatus.OK,res.getStatusCode());
+  }
+	
+	//New
+	@Test
+    public void testUpdatePaymentByPaymentTemplateFailed() throws PaymentNotFoundException{
+		UserData u=new UserData("john","1234","john@gmail.com","Delhi","Goa",true);
+		uservice.addUser(u);
+		OrderData o=new OrderData(new java.util.Date(),400f,"Received",cservice.findCartOfUser(u));
+		oservice.addOrder(o);
+		Payment p=pdao.findByOrderId(o);
+		int pid=0;
+		int oid=o.getOrderId();
+		final String url="http://localhost:8900/updatepaymentmode/"+pid+"/"+oid+"/Card";
+        Exception exception= assertThrows(PaymentNotFoundException.class, ()->{
+           udc.updatePaymentMethod(pid, oid, url);
+
+        });
+            String expectedMessage = "Could not Set Up Payment.";
+            String actualMessage = exception.toString();
+
+            assertTrue(actualMessage.equals(expectedMessage));
+    }
 	
 	
 	
